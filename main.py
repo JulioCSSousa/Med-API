@@ -14,9 +14,7 @@ path = os.environ["PATH"]
 print(path)
 database_url = os.environ.get("DATABASE_URL", "localhost")
 print(database_url)
-#trazer todos os remédios que estão vencendo
-# data atual - data de recebimento * qt diaria - qt de percas
-#Login Rotas
+
 
 
 @app.route('/home')

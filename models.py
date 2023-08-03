@@ -11,11 +11,11 @@ def generate_uuid():
 
 class UserSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'user', 'email')
+        fields = ('id', 'name', 'email')
 
 class PatientSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'client_name', 'cpf')
+        fields = ('id', 'patient_name', 'cpf')
 
 class MedicineSchema(ma.Schema):
     class Meta:
@@ -53,7 +53,7 @@ class Patient(db.Model):
     notes = db.Column(db.Text)
 
     def __init__(self, name, cpf, notes):
-        self.client_name = name
+        self.patient_name = name
         self.cpf = cpf
         self.notes = notes
 
