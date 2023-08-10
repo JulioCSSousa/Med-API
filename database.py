@@ -14,6 +14,6 @@ mydb = mysql.connector.connect(
     host='localhost',
     user='root',
     password= '4306',
-    database='pymeddb',)
+    database='pymeddb')
 
 cursor = mydb.cursor()

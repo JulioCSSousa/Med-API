@@ -8,12 +8,10 @@ from models import users_share_schema, user_share_schema, patients_share_schema,
 from models import User, Patient, Medicine
 import jwt
 from authenticate import jwt_required
-import os
-app.config['JSON_SORT_KEYS'] = False
-path = os.environ["PATH"]
-print(path)
-database_url = os.environ.get("DATABASE_URL", "localhost")
-print(database_url)
+
+import re
+import sys
+
 
 
 
@@ -105,14 +103,12 @@ def find_patient_id(current_user, id):
 @app.route('/patients/<id>', methods=["PUT"])
 @jwt_required
 def patient_edit_id(id,current_user):
-    name = request.json['name']
+    name = request.json['patient_name']
     cpf = request.json['cpf']
     note = request.json['note']
     patient = Patient.query.filter_by(id=id).first()
-    patient.client_name = name
-    db.session.commit()
+    patient.patient_name = name
     patient.cpf = cpf
-    db.session.commit()
     patient.notes = note
     db.session.commit()
 
@@ -145,36 +141,31 @@ def get_med(current_user):
 @app.route('/medicines', methods=['POST'])
 @jwt_required
 def insert_med(current_user):
-    medicine = request.json
-    sql = f"INSERT INTO medicines (id, med_name, quant_capsule_box ) VALUES (UUID(), '{medicine['med_name']}', '{medicine['quant_capsule_box']}')"
-    cursor.execute(sql)
-    mydb.commit()
-    return jsonify(
-        message='medicamento cadastrado com sucesso',
-        med=medicine
-    )
-
+    med_name = request.json['med_name']
+    quant_capsule_box = request.json['quant_capsule_box']
+    med = Medicine(med_name, quant_capsule_box)
+    db.session.add(med)
+    db.session.commit()
+    return jsonify(message=f'{med.med_name} adicionado com sucesso')
 
 @app.route('/medicines/<id>', methods=['GET'])
 @jwt_required
 def get_med_id(id, current_user):
-    cursor.execute(f'select * from medicines where id = ("{id}")')
-    med_list = cursor.fetchall()
-    sort = []
-    for item in med_list:
-        sort.append({'Nome': item[1], 'Quantidade_Caixa': item[2]})
-    return jsonify(med_list)
+    med = medicine_share_schema.dump(
+        Medicine.query.filter_by(id=id).first()
+    )
+    return jsonify(med)
 
 @app.route('/medicines/<id>', methods=['PUT'])
 @jwt_required
 def med_edit(id, current_user):
-    med = request.json
-    cursor.execute(f"SELECT * from medicines where id = ('{id}')")
-    before = cursor.fetchall().copy()
-    cursor.execute(f"UPDATE medicines SET med_name = '{med ['med_name']}', quant_capsule_box = '{med['quant_capsule_box']}' WHERE (`id` = '{id}');")
-    mydb.commit()
-    message = f"Mudanças: {before[0][1], before[0][2]} --> {med['med_name'], med['quant_capsule_box']}"
-    return jsonify(message)
+    med_name = request.json['med_name']
+    quant_capsule_box = request.json['quant_capsule_box']
+    med = Medicine.query.filter_by(id=id).first()
+    med.med_name = med_name
+    med.quant_capsule_box = quant_capsule_box
+    db.session.commit()
+    return jsonify(message='medicamento alterado com sucesso ')
 
 @app.route('/medicines/<int:id>', methods=["DELETE"])
 @jwt_required

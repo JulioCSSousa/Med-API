@@ -19,7 +19,7 @@ class PatientSchema(ma.Schema):
 
 class MedicineSchema(ma.Schema):
     class Meta:
-        fields = ('id', 'name', 'quant')
+        fields = ('id', 'med_name', 'quant_capsule_box')
 
 user_share_schema = UserSchema()
 users_share_schema = UserSchema(many=True)
@@ -60,9 +60,9 @@ class Patient(db.Model):
 class Medicine(db.Model):
     __tablename__ = 'medicines'
     id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
-    med_name = db.Column(db.String(64), nullable=False)
-    quant_capsule_box = db.Column(db.String(11), nullable=False, unique=True)
+    med_name = db.Column(db.Integer, nullable=False)
+    quant_capsule_box = db.Column(db.Integer, nullable=False)
 
     def __init__(self, med_name, quant_capsule_box):
         self.med_name = med_name
-        self.quant = quant_capsule_box
+        self.quant_capsule_box = quant_capsule_box
