@@ -1,5 +1,4 @@
 import datetime
-from flask_login import logout_user
 from flask import jsonify, request
 
 from database import *
@@ -46,10 +45,10 @@ def login():
     token = jwt.encode(payload, app.config['SECRET_KEY'])
     return jsonify({"token": token})
 
-@app.route('/logout')
+"""@app.route('/logout')
 def logout():
     logout_user()
-    return ''
+    return ''"""
 
 
 @app.route('/auth/protected', methods=['GET'])
