@@ -7,6 +7,10 @@ name = "pypi"
 gunicorn = "*"
 
 [dev-packages]
+flask = "*"
+flask-login = "*"
+flask-sqlalchemy = "*"
+mysqlclient = '*'
 
 [requires]
 python_version = "3.10"
