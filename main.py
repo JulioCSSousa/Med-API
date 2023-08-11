@@ -9,11 +9,6 @@ from models import User, Patient, Medicine
 import jwt
 from authenticate import jwt_required
 
-import re
-import sys
-
-
-
 
 @app.route('/home')
 def home():
