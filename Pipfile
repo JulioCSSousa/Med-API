@@ -22,5 +22,7 @@ protobuf= "*"
 SQLAlchemy= "*"
 typing_extensions= "*"
 Werkzeug= "*"
+marshmallow="*"
+
 [requires]
 python_version = "3.10"
