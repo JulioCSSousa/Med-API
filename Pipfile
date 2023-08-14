@@ -23,6 +23,7 @@ SQLAlchemy= "*"
 typing_extensions= "*"
 Werkzeug= "*"
 marshmallow="*"
+PyMySQL= "*"
 
 [requires]
 python_version = "3.10"
