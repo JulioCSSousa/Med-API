@@ -6,11 +6,21 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-flask = "*"
-flask-login = "*"
-flask-sqlalchemy = "*"
-mysql-connector-python = "*"
+blinker= "*"
+click= "*"
+colorama= "*"
+Flask= "*"
+Flask-Login= "*"
+Flask-SQLAlchemy= "*"
+greenlet= "*"
+itsdangerous= "*"
+Jinja2= "*"
+MarkupSafe= "*"
 mysql-client= "*"
-
+mysql-connector-python= "*"
+protobuf= "*"
+SQLAlchemy= "*"
+typing_extensions= "*"
+Werkzeug= "*"
 [requires]
 python_version = "3.10"
