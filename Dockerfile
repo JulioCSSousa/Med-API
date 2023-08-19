@@ -46,4 +46,4 @@ COPY . .
 EXPOSE 8000
 
 # Run the application.
-CMD runapp
+CMD gunicorn 'database:app' --bind=0.0.0.0:8000
