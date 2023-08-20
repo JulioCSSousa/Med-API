@@ -4,7 +4,7 @@ from database import *
 import jwt
 from authenticate import jwt_required
 from models import User
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import check_password_hash
 
 
 @app.route('/home')
@@ -265,8 +265,6 @@ def expiration(current_user):
 
         })
     return(sort)
-
-
 
 
 app.run()

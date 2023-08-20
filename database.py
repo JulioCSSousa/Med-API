@@ -8,9 +8,10 @@ login_manager = LoginManager(app)
 ma = marshmallow
 
 mydb = mysql.connector.connect(
-    host='containers-us-west-49.railway.app',
+    host='containers-us-west-62.railway.app',
     user='root',
-    password='2ZXdXJSnwlwVKk7553mP',
-    port='6614')
+    password='aZH6GgpyuUfTnHJ9sc00',
+    port='8871',
+    database='railway')
 
 cursor = mydb.cursor()
