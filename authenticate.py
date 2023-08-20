@@ -1,8 +1,6 @@
 from functools import wraps
 import jwt
 from flask import request, jsonify
-from models import User
-
 
 
 def jwt_required(f):
@@ -14,7 +12,7 @@ def jwt_required(f):
         if not token:
             return jsonify({'error': 'sem autorização para este acesso'}), 403
         decoded = jwt.decode(token, verify=False, options={'verify_signature': False})
-        current_user = User.query.get(decoded['id'])
+        current_user = (decoded['id'])
 
         return f(current_user=current_user, *args, **kwargs)
 

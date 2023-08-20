@@ -1,11 +1,18 @@
-from database import db, login_manager, ma
+from database import login_manager, ma, mydb, cursor
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 import uuid
-@login_manager.user_loader
+from flask import jsonify
 
-def get_user(user_id):
-    return User.query.filter_by(id=user_id).first()
+
+@login_manager.user_loader
+def get_user(id):
+    sql = f'SELECT * FROM users WHERE id = {id}'
+    cursor.execute(sql)
+    user = cursor.fetchall()
+    return user
+
+
 def generate_uuid():
     return str(uuid.uuid4())
 
@@ -21,48 +28,24 @@ class MedicineSchema(ma.Schema):
     class Meta:
         fields = ('id', 'med_name', 'quant_capsule_box')
 
-user_share_schema = UserSchema()
-users_share_schema = UserSchema(many=True)
-patient_share_schema = PatientSchema()
-patients_share_schema = PatientSchema(many=True)
-medicine_share_schema = MedicineSchema()
-medicines_share_schema = MedicineSchema(many=True)
 
-
-class User(db.Model, UserMixin):
-
-    __tablename__ = 'users'
-    id = db.Column(db.String(36), name='id', primary_key=True,  default=generate_uuid)
-    name = db.Column(db.String(64), nullable=False)
-    email = db.Column(db.String(64), nullable=False, unique=True)
-    password = db.Column(db.String(128), nullable=False)
+class User(UserMixin):
 
     def __init__(self, name, email, password):
         self.name = name
         self.email = email
         self.password = generate_password_hash(password)
 
+    def get_hash(self, password):
+        self.password = generate_password_hash(password)
+
+    def register(self, name, email, password):
+        sql = f'INSERT INTO users (id, name, email, password) VALUES ("{generate_uuid()}", "{name}' \
+              f'"{email}", "{password}");'
+        cursor.execute(sql)
+        mydb.commit()
+        return jsonify(message='Usuario cadastrado com sucesso')
+
     def verify_pwd(self, password):
         return check_password_hash(self.password, password)
 
-class Patient(db.Model):
-    __tablename__ = 'patients'
-    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
-    patient_name = db.Column(db.String(64), nullable=False)
-    cpf = db.Column(db.String(11), nullable=False, unique=True)
-    notes = db.Column(db.Text)
-
-    def __init__(self, name, cpf, notes):
-        self.patient_name = name
-        self.cpf = cpf
-        self.notes = notes
-
-class Medicine(db.Model):
-    __tablename__ = 'medicines'
-    id = db.Column(db.String(36), primary_key=True, default=generate_uuid)
-    med_name = db.Column(db.Integer, nullable=False)
-    quant_capsule_box = db.Column(db.Integer, nullable=False)
-
-    def __init__(self, med_name, quant_capsule_box):
-        self.med_name = med_name
-        self.quant_capsule_box = quant_capsule_box

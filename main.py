@@ -1,12 +1,10 @@
 import datetime
 from flask import request, jsonify
-
 from database import *
-from models import users_share_schema, user_share_schema, patients_share_schema, patient_share_schema,\
-    medicines_share_schema, medicine_share_schema
-from models import User, Patient, Medicine
 import jwt
 from authenticate import jwt_required
+from models import User
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 @app.route('/home')
@@ -18,28 +16,27 @@ def register():
     name = request.json['name']
     email = request.json['email']
     password = request.json['password']
-
     user = User(name, email, password)
     user.verify_pwd(password)
-    db.session.add(user)
-    db.session.commit()
-    result = user_share_schema.dump(
-        User.query.filter_by(email=email).first()
-    )
-    return jsonify(result)
+    mydb.commit()
+    mydb.commit()
+    return jsonify()
 
 
 @app.route('/login', methods=['POST'])
 def login():
     email = request.json['email']
     password = request.json['password']
-    user = User.query.filter_by(email=email).first_or_404()
+    cursor.execute(f'SELECT id, password FROM users WHERE email = "{email}";')
+    list = cursor.fetchall()
+    user = list[0][0]
+    passwordbd = list[0][1]
 
-    if not user.verify_pwd(password):
-        return jsonify({"error": "autenticação"}), 403
+    if not check_password_hash(passwordbd,password):
+        return jsonify(message='Password inválido')
 
     payload = {
-        "id": user.id,
+        "id": user,
         "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
     }
     token = jwt.encode(payload, app.config['SECRET_KEY'])
@@ -54,69 +51,55 @@ def logout():
 @app.route('/auth/protected', methods=['GET'])
 @jwt_required
 def protected(current_user):
-    result = users_share_schema.dump(
-        User.query.all()
-    )
-
-    return jsonify(result)
+    sql = 'SELECT name, email FROM users ;'
+    cursor.execute(sql)
+    list = cursor.fetchall()
+    return jsonify(list)
 
 
 #PATIENTS
 @app.route('/patients', methods=['GET'])
 @jwt_required
 def get_patient(current_user):
-    patients = patients_share_schema.dump(
-        Patient.query.all()
-    )
-    return jsonify(patients)
+    sql = ('SELECT * FROM patients;')
+    cursor.execute(sql)
+    lista = cursor.fetchall()
+    return jsonify(lista)
 
 
 @app.route('/patients', methods=['POST'])
 @jwt_required
 def insert_patient(current_user):
-    name = request.json['name']
+    name = request.json['patient_name']
     cpf = request.json['cpf']
     note = request.json['note']
-    patient = Patient(name, cpf, note)
-    db.session.add(patient)
-    db.session.commit()
-    return jsonify(message='Paciente cadastrado com sucesso! ')
+    sql = f'INSERT INTO patients (id, patient_name, cpf, notes) VALUES ("UUID()", "{name}", "{cpf}", "{note}");'
+    cursor.execute(sql)
+    mydb.commit()
+    return jsonify(message=f'{name} cadastrado com sucesso')
 
 @app.route('/patients/<id>', methods=['GET'])
 @jwt_required
 def find_patient_id(current_user, id):
-    patient = patient_share_schema.dump(
-        Patient.query.filter_by(id=id).first())
-    if not patient:
-        return jsonify(message='paciente não encontrado')
-
-
+    sql = f'SELECT * FROM patients WHERE id = "{id}";'
+    cursor.execute(sql)
+    patient = cursor.fetchall()
     return jsonify(patient)
-
 
 @app.route('/patients/<id>', methods=["PUT"])
 @jwt_required
-def patient_edit_id(id,current_user):
+def edit_patient(current_user, id):
     name = request.json['patient_name']
     cpf = request.json['cpf']
-    note = request.json['note']
-    patient = Patient.query.filter_by(id=id).first()
-    patient.patient_name = name
-    patient.cpf = cpf
-    patient.notes = note
-    db.session.commit()
-
-    return jsonify(message="Paciente alterado com sucesso")
+    sql = f'UPDATE patients SET patient_name = "{name}", cpf = "{cpf}" WHERE id="{id}";'
+    cursor.execute(sql)
+    mydb.commit()
+    return jsonify(message='Pacient editado com sucesso')
 
 
 @app.route('/patients/<id>', methods=["DELETE"])
-@jwt_required
-def patient_del_id(current_user, id):
-    Patient.query.filter_by(id=id).delete()
-    db.session.commit()
-
-    return jsonify(message='Paciente deletado')
-
+def delete_patient():
+    pass
 
 
 
@@ -125,41 +108,41 @@ def patient_del_id(current_user, id):
 @app.route('/medicines', methods=['GET'])
 @jwt_required
 def get_med(current_user):
-    med = medicines_share_schema.dump(
-        Medicine.query.all()
-    )
-    return jsonify(med)
+    sql = ('SELECT * FROM medicines;')
+    cursor.execute(sql)
+    lista = cursor.fetchall()
+    return jsonify(lista)
 
 
 
 @app.route('/medicines', methods=['POST'])
 @jwt_required
 def insert_med(current_user):
-    med_name = request.json['med_name']
-    quant_capsule_box = request.json['quant_capsule_box']
-    med = Medicine(med_name, quant_capsule_box)
-    db.session.add(med)
-    db.session.commit()
-    return jsonify(message=f'{med.med_name} adicionado com sucesso')
+    name = request.json['med_name']
+    quant = request.json['quant_capsule_box']
+    sql = f'INSERT INTO medicines (id, med_name, quant_capsule_box) VALUES (UUID(), "{name}", "{quant}");'
+    cursor.execute(sql)
+    mydb.commit()
+    return jsonify(message=f'{name} cadastrado com sucesso')
+
 
 @app.route('/medicines/<id>', methods=['GET'])
 @jwt_required
 def get_med_id(id, current_user):
-    med = medicine_share_schema.dump(
-        Medicine.query.filter_by(id=id).first()
-    )
-    return jsonify(med)
+    sql = f'SELECT * FROM medicines WHERE id = {id};'
+    cursor.execute(sql)
+    patient = cursor.fetchall()
+    return jsonify(patient)
 
 @app.route('/medicines/<id>', methods=['PUT'])
 @jwt_required
 def med_edit(id, current_user):
-    med_name = request.json['med_name']
-    quant_capsule_box = request.json['quant_capsule_box']
-    med = Medicine.query.filter_by(id=id).first()
-    med.med_name = med_name
-    med.quant_capsule_box = quant_capsule_box
-    db.session.commit()
-    return jsonify(message='medicamento alterado com sucesso ')
+    name = request.json['med_name']
+    quant = request.json['quant_capsule_box']
+    sql = f'UPDATE medicines SET med_name = "{name}", quant_capsule_da = {quant} WHERE id="{id}";'
+    cursor.execute(sql)
+    mydb.commit()
+    return jsonify(message='Pacient editado com sucesso')
 
 @app.route('/medicines/<int:id>', methods=["DELETE"])
 @jwt_required
@@ -174,7 +157,7 @@ def med_del_id(id):
 @app.route('/med-adm', methods=['GET'])
 @jwt_required
 def get_med_adm(current_user):
-    cursor.execute("""SELECT patients.id, patients.client_name, medicines.med_name, med_adm.quant_capsule_day, med_adm.start_date
+    cursor.execute("""SELECT patients.id, patients.patient_name, medicines.med_name, med_adm.quant_capsule_day, receipt_date, entry_quant, expiration_date
                       FROM patients
                       JOIN med_adm
                       ON patients.id = med_adm.id_patient
@@ -186,14 +169,16 @@ def get_med_adm(current_user):
         lst_med_adm.append({'Nome do Cliente': adm[1],
                             'Nome do Remedio': adm[2],
                             'Quantidade por Dia': adm[3],
-                            'inicio Medicação': adm[4]})
+                            'receipt_date': adm[4],
+                            'entry_quant': adm[5],
+                            'expiration_date': adm[6] })
     return jsonify(lst_med_adm)
 
 
 @app.route('/med-adm/<int:id>', methods=['GET'])
 @jwt_required
 def get_med_adm_id(id, current_user):
-    cursor.execute("""SELECT patients.id, patients.client_name, medicines.med_name, med_adm.quant_capsule_day, med_adm.start_date
+    cursor.execute("""SELECT patients.id, patients.patient_name, medicines.med_name, med_adm.quant_capsule_day, receipt_date, entry_quant, expiration_date
                       FROM patients
                       JOIN med_adm
                       ON patients.id = med_adm.id_patient
@@ -202,11 +187,12 @@ def get_med_adm_id(id, current_user):
     med_adm_list = cursor.fetchall()
     lst_med_adm = []
     for adm in med_adm_list:
-        lst_med_adm.append({'Id': adm[0],
-                            'Nome do Cliente': adm[1],
+        lst_med_adm.append({'Nome do Cliente': adm[1],
                             'Nome do Remedio': adm[2],
                             'Quantidade por Dia': adm[3],
-                            'Data de inicio': adm[4]})
+                            'receipt_date': adm[4],
+                            'entry_quant': adm[5],
+                            'expiration_date': adm[6] })
     return jsonify(lst_med_adm[id-1])
 
 
