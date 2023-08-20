@@ -54,6 +54,7 @@
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
+        <env name="PORT" value="0.0.0.0:$PORT" />
       </envs>
       <option name="SDK_HOME" value="C:\Users\julio\AppData\Local\Programs\Python\Python310\python.exe" />
       <option name="SDK_NAME" value="Python 3.10 (2)" />
