@@ -1,12 +1,9 @@
 import mysql.connector
 from flask import Flask
 from flask_login import LoginManager
-import marshmallow
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret'
-login_manager = LoginManager(app)
-ma = marshmallow
 
+app = Flask(__name__)
+login_manager = LoginManager(app)
 mydb = mysql.connector.connect(
     host='containers-us-west-50.railway.app',
     user='root',
@@ -15,3 +12,4 @@ mydb = mysql.connector.connect(
     database='railway')
 
 cursor = mydb.cursor()
+

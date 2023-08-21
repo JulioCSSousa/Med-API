@@ -1,4 +1,4 @@
-from database import login_manager, ma, mydb, cursor
+from database import login_manager, mydb, cursor
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 import uuid
@@ -15,19 +15,6 @@ def get_user(id):
 
 def generate_uuid():
     return str(uuid.uuid4())
-
-class UserSchema(ma.Schema):
-    class Meta:
-        fields = ('id', 'name', 'email')
-
-class PatientSchema(ma.Schema):
-    class Meta:
-        fields = ('id', 'patient_name', 'cpf')
-
-class MedicineSchema(ma.Schema):
-    class Meta:
-        fields = ('id', 'med_name', 'quant_capsule_box')
-
 
 class User(UserMixin):
 

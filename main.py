@@ -6,6 +6,9 @@ from authenticate import jwt_required
 from models import User
 from werkzeug.security import check_password_hash
 
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret'
+
 
 @app.route('/home')
 def home():
@@ -31,10 +34,8 @@ def login():
     list = cursor.fetchall()
     user = list[0][0]
     passwordbd = list[0][1]
-
     if not check_password_hash(passwordbd,password):
         return jsonify(message='Password inválido')
-
     payload = {
         "id": user,
         "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
