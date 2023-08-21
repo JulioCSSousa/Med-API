@@ -23,7 +23,7 @@ def register():
     user.verify_pwd(password)
     mydb.commit()
     mydb.commit()
-    return jsonify()
+    return jsonify(message="registrado com sucesso")
 
 
 @app.route('/login', methods=['POST'])
@@ -60,8 +60,7 @@ def protected(current_user):
 
 #PATIENTS
 @app.route('/patients', methods=['GET'])
-@jwt_required
-def get_patient(current_user):
+def get_patient():
     sql = ('SELECT * FROM patients;')
     cursor.execute(sql)
     lista = cursor.fetchall()
