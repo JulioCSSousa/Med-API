@@ -1,4 +1,4 @@
-from app.database import Base
+from app.database import *
 from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, Date
 from sqlalchemy.orm import relationship
 
@@ -23,7 +23,6 @@ class Patient(Base):
     cpf = Column(String, nullable=False, unique=True)
     notes = Column(Text)
 
-med_adm_patients = relationship('Med_adm', back_populates='patients')
 
 class Medicine(Base):
     __tablename__ = 'medicines'

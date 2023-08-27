@@ -5,19 +5,19 @@ from app.models import *
 from app.schemas import *
 
 
-def get_user_by_id(db: Session  , id: str):
+def get_user(db: Session, id: str):
     return db.query(User).filter(User.id == id).first()
 
 
-def get_user_by_email(db: Session, email: str):
-    return db.query(User).filter(User.email == email).first()
+def get_user_by_email(db: Session, email: str, skip: int = 0, limit: int = 100):
+    return db.query(User.email).filter(User.email == email).offset(skip).limit(limit).first()
 
 
-def get_users(db: Session, skip: int = 0, limit: int = 1000):
+def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(User).offset(skip).limit(limit).all()
 
 
-def create_user(db: Session, user: UserCreate):
+def createUser(db: Session, user: UserCreate):
     hashed_password = generate_password_hash(user.password)
     db_user = User(name=user.name, email=user.email, password=hashed_password)
     db.add(db_user)
@@ -25,13 +25,12 @@ def create_user(db: Session, user: UserCreate):
     db.refresh(db_user)
     return db_user
 
+def get_patients(db: Session, skip: int = 0, limit: int = 100):
+    return db.query(Patient).offset(skip).limit(limit).all()
 
 def get_patient(db: Session, id: str):
     return db.query(Patient).filter(Patient.id == id).first()
 
-
-def get_patients(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(Patient).offset(skip).limit(limit).all()
 
 
 def create_patient(db: Session, patient: PatientCreate):
