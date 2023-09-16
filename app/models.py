@@ -1,5 +1,5 @@
 from app.database import *
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, Date
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, Date, SmallInteger
 from sqlalchemy.orm import relationship
 
 import uuid
@@ -13,7 +13,6 @@ class User(Base):
     name = Column(String, nullable=False)
     email = Column(String, nullable=False, unique=True)
     password = Column(String, nullable=False)
-    is_active = Column(Boolean, default=True)
 
 
 class Patient(Base):
@@ -22,7 +21,7 @@ class Patient(Base):
     patient_name = Column(String, nullable=False)
     cpf = Column(String, nullable=False, unique=True)
     notes = Column(Text)
-
+    is_active = Column(Boolean)
 
 class Medicine(Base):
     __tablename__ = 'medicines'
@@ -35,7 +34,7 @@ class Med_adm(Base):
     id = Column(String, primary_key=True, default=generate_uuid)
     id_patient = Column(String, ForeignKey('patients.id'))
     id_med = Column(String, ForeignKey('medicines.id'))
-    quant_capsule_day = Integer
+    quant_capsule_day = SmallInteger
     receipt_date = Date
     entry_quant = Integer
     loss = Integer

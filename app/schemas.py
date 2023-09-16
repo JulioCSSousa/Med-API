@@ -1,25 +1,33 @@
 from pydantic import BaseModel
-class UserBase(BaseModel):
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class UserCreate(BaseModel):
     name: str
     email: str
-
-class UserCreate(UserBase):
     password: str
 
-class UserSchema(UserBase):
+class UserSchema(UserCreate):
     id: str
-    is_active: bool
+    email: str
 
+class TokenData(BaseModel):
+    email: str
 
 class PatientBase(BaseModel):
-    patient_name: str
-    cpf: str
+    patient_name: str or None=None
+    notes: str or None=None
 
 class PatientCreate(PatientBase):
-    pass
+    cpf: str
 
 class PatientSchema(PatientBase):
     id: str
+    is_active: bool
 
     class Config:
         orm_mode = True
