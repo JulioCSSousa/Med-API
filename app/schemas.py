@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-
+from datetime import date
 
 class Token(BaseModel):
     access_token: str
@@ -19,8 +19,8 @@ class TokenData(BaseModel):
     email: str
 
 class PatientBase(BaseModel):
-    patient_name: str or None=None
-    notes: str or None=None
+    patient_name: str
+    notes: str
 
 class PatientCreate(PatientBase):
     cpf: str
@@ -47,21 +47,19 @@ class MedicineSchema(MedicineBase):
         orm_mode = True
 
 class MedAdmBase(BaseModel):
-    med_name: str
-    quant_capsule_box: int
     quant_capsule_day: int
-    receipt_date: str
+    receipt_date: date
     entry_quant: int
     loss: int
-    expiration_date: str
+    expiration_date: date
 
 class MedAdmCreate(MedAdmBase):
-    pass
+    id_patient: str
+    id_med: str
 
 class MedAdmSchema(MedAdmBase):
     id: str
-    id_patient: list[PatientSchema] = []
-    id_med: list[MedicineSchema] = []
+
 
     class Config:
         orm_mode = True

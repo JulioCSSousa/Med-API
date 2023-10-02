@@ -35,7 +35,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Incorrect username or password", headers={"WWW-Authenticate":"Bearer"})
+                            detail="Email ou senha incorreto", headers={"WWW-Authenticate":"Bearer"})
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRES)
     access_token = create_access_token(data={"sub": user}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type":"bearer"}
@@ -44,7 +44,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
 def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = get_user_by_email(db, email=user.email)
     if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+        raise HTTPException(status_code=400, detail="Email já existe")
     hashed_password = generate_password_hash(user.password)
     db_user = User(name=user.name, email=user.email, password=hashed_password)
     db.add(db_user)
@@ -70,21 +70,27 @@ def read_user(id: str, TokenData = Depends(get_current_user)):
 
 @app.get("/patients/", response_model=list[PatientSchema])
 def read_patients(skip: int = 0, limit: int = 100, TokenData = Depends(get_current_user)):
+    actived_patient = []
     patients = get_patients(db, skip=skip, limit=limit)
-    return patients
+    for active in patients:
+        if Patient.is_active:
+            actived_patient.append(active)
+        else:
+            actived_patient.pop()
+    return actived_patient
 
 @app.get("/patients/{id}", response_model=PatientSchema)
 def read_patient_id(id: str, TokenData = Depends(get_current_user)):
     patient = get_patient(db, id=id)
     if not patient.is_active:
-        raise HTTPException(status_code=404, detail=f"seems {patient.patient_name} is a inactive patient")
+        raise HTTPException(status_code=404, detail=f"Parece que {patient.patient_name} está inativo")
     return patient
 
 @app.post("/patients/", response_model=PatientCreate)
-def new_patient(patient: PatientCreate, db: Session = Depends(get_db)):
+def new_patient(patient: PatientCreate, db: Session = Depends(get_db), TokenData = Depends(get_current_user)):
     db_patient = get_patient_by_cpf(db, cpf=patient.cpf)
     if db_patient:
-        raise HTTPException(status_code=400, detail="CPF already registered")
+        raise HTTPException(status_code=400, detail="CPF já existe")
     db_patient = Patient(patient_name=patient.patient_name, cpf=patient.cpf, notes=patient.notes, is_active=True)
     db.add(db_patient)
     db.commit()
@@ -100,19 +106,36 @@ def read_medicines(skip: int = 0, limit: int = 100, TokenData = Depends(get_curr
 def read_medicine_id(id: str, TokenData = Depends(get_current_user)):
     medicine = get_medicine(db, id)
     if not medicine:
-        raise HTTPException(status_code=404, detail="Medicine not found")
+        raise HTTPException(status_code=404, detail="Medicamento não encontrado")
     return medicine
 
 @app.post("/medicines/", response_model=MedicineCreate)
 def new_medicine(medicine: MedicineCreate, db: Session = Depends(get_db)):
-
     db_medicine = Medicine(med_name=medicine.med_name, quant_capsule_box=medicine.quant_capsule_box)
     db.add(db_medicine)
     db.commit()
     db.refresh(db_medicine)
-    return JSONResponse(f"{db_medicine.med_name}  Cadastradoc com sucesso")
+    return JSONResponse(f"{db_medicine.med_name}  Cadastrado com sucesso")
 
 @app.get("/med_adm/", response_model=list[MedAdmSchema])
 def get_med_adm(skip: int = 0, limit: int = 100, TokenData = Depends(get_current_user)):
     med_adm = get_admistration(db, skip=skip, limit=limit)
     return med_adm
+
+@app.get("/med_adm/{id}", response_model=MedAdmSchema)
+def get_med_adm(id: str, TokenData = Depends(get_current_user)):
+    active = activated(db, id)
+    if not active:
+        raise HTTPException(status_code=404, detail='Paciente inativo')
+    patient = get_adminstration_by_id(db, id)
+    return patient
+
+@app.post("/med_med_adm/", response_model=MedAdmCreate)
+def patient_med_register(med_adm: MedAdmCreate, db: Session = Depends(get_db), TokenData = Depends(get_current_user) ):
+    med_post = post_med_adm(db, med_adm.id_patient, med_adm.id_med, med_adm.quant_capsule_day, med_adm.receipt_date,
+                 med_adm.entry_quant, med_adm.loss, med_adm.expiration_date)
+    adm = get_adminstration_by_id(db, med_adm.id_patient)
+
+    return JSONResponse(adm)
+
+
