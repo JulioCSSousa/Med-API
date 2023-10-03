@@ -1,8 +1,7 @@
 from sqlalchemy.orm import Session
-from werkzeug.security import generate_password_hash
 from sqlalchemy import text
-from app.models import *
-from app.schemas import *
+from models import *
+from schemas import *
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 db = Session(engine)

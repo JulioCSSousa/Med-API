@@ -1,5 +1,5 @@
-from app.database import *
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, Date, SmallInteger, SMALLINT
+from database import *
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Text, Date, SmallInteger
 from sqlalchemy.orm import relationship
 
 import uuid
