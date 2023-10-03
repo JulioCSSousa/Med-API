@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 from werkzeug.security import generate_password_hash
 from fastapi.security import OAuth2PasswordRequestForm
-from auth_user import *
-from crud import *
+from app.auth_user import *
+from app.crud import *
 from sqlalchemy.orm import Session
-from database import Base
+from app.database import Base
 Base.metadata.create_all(bind=engine)
 from fastapi.responses import JSONResponse
 db = Session(engine)
