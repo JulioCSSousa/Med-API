@@ -28,8 +28,8 @@ def get_db():
 
 
 
-@app.get("/login/", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
+@app.post("/login/", response_model=Token)
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
