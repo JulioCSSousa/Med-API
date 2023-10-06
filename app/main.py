@@ -48,7 +48,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    return JSONResponse (content=f"{user.nome, user.email} Cadastrado com sucesso")
+    return JSONResponse (content=f"{user.name, user.email} Cadastrado com sucesso")
 
 @app.get("/users/me", response_model=TokenData)
 def read_user_me(current_user: TokenData = Depends(get_current_user)):
