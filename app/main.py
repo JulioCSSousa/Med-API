@@ -28,7 +28,7 @@ def get_db():
 
 
 
-@app.post("/token", response_model=Token)
+@app.get("/login/", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
@@ -38,7 +38,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token = create_access_token(data={"sub": user}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type":"bearer"}
 
-@app.post("/users/", response_model=UserCreate)
+@app.post("/register/", response_model=UserCreate)
 def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = get_user_by_email(db, email=user.email)
     if db_user:
