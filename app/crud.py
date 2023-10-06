@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from models import *
-from schemas import *
+from app.models import *
+from app.schemas import *
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 db = Session(engine)
