@@ -22,16 +22,15 @@ def get_pwd_hash(password):
     return pwd_context.hash(password)
 
 def authenticate_user(db: Session, username: str, password: str):
-    emaill = get_user_by_email(db, username)
-    user = emaill[0]
-    if not user:
+    email = get_user_by_email(db, username)
+    if not email:
         return False
-    pwd = get_user_pwd(db, user)
+    pwd = get_user_pwd(db, email[0])
     pwdd = pwd[0]
     if not verify_pwd(pwdd, password):
         return False
-
-    return user
+    print('emaill', email[0])
+    return email[0]
 
 def create_access_token(data: dict, expires_delta: timedelta or None = None):
     to_encode = data.copy()

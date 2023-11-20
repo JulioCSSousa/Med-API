@@ -28,7 +28,7 @@ def get_db():
 
 
 
-@app.post("/login/", response_model=Token)
+@app.post("/token", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
@@ -44,7 +44,7 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     if db_user:
         raise HTTPException(status_code=400, detail="Email já existe")
     hashed_password = generate_password_hash(user.password)
-    db_user = User(name=user.name, email=user.email, password=hashed_password)
+    db_user = User(id=generate_uuid(), name=user.name, email=user.email, password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
