@@ -65,14 +65,8 @@ def read_user(id: str, TokenData = Depends(get_current_user)):
 
 @app.get("/patients/", response_model=list[PatientSchema])
 def read_patients(skip: int = 0, limit: int = 100, TokenData = Depends(get_current_user)):
-    actived_patient = []
     patients = get_patients(db, skip=skip, limit=limit)
-    for active in patients:
-        if Patient.is_active:
-            actived_patient.append(active)
-        else:
-            actived_patient.pop()
-    return actived_patient
+    return patients
 
 @app.get("/patients/{id}", response_model=PatientSchema)
 def read_patient_id(id: str, TokenData = Depends(get_current_user)):
