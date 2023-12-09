@@ -20,7 +20,7 @@ class Patient(Base):
     id = Column(String, primary_key=True, default=generate_uuid)
     patient_name = Column(String, nullable=False)
     cpf = Column(String, nullable=False, unique=True)
-    notes = Column(Text, default=None)
+    notes = Column(String or None)
     is_active = Column(Boolean, default=True)
 
 class Medicine(Base):

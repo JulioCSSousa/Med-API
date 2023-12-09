@@ -20,7 +20,7 @@ class TokenData(BaseModel):
 
 class PatientBase(BaseModel):
     patient_name: str
-    notes: str
+    notes: str | None = 'Nada declarado'
 
 class PatientCreate(PatientBase):
     cpf: str
