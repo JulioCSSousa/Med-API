@@ -28,6 +28,9 @@ async def db_session_middleware(request, call_next):
     response = await call_next(request)
     return response
 
+@app.get("/")
+def home():
+    return 'Bem vindo'
 
 @app.post("/token", response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends()):
