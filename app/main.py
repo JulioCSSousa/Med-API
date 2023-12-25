@@ -1,7 +1,5 @@
-from fastapi import FastAPI, requests
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI
+
 from werkzeug.security import generate_password_hash
 from fastapi.security import OAuth2PasswordRequestForm
 from app.auth_user import *
