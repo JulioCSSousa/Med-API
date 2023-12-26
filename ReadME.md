@@ -18,6 +18,12 @@ ainda será agregada o FrontEnd
 
 https://med-api-production.up.railway.app/docs#/
 
+para acessar os endpoints, vá em authorize e insira  
+  
+  "email": "visitante",
+  "password": "visita"
+
+  
 <img src="tela_inicial.png">
 
 <img src="tela_login.png">
