@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
-
+from pydantic import EmailStr, Field
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -8,19 +8,19 @@ class Token(BaseModel):
 
 class UserCreate(BaseModel):
     name: str
-    email: str
+    email: EmailStr | None = Field(default=None)
     password: str
 
 class UserSchema(UserCreate):
     id: str
-    email: str
+    email: EmailStr | None = Field(default=None)
 
 class TokenData(BaseModel):
-    email: str
+    email: EmailStr | None = Field(default=None)
 
 class PatientBase(BaseModel):
     patient_name: str
-    notes: str | None = 'Nada declarado'
+    notes: str | None = None
 
 class PatientCreate(PatientBase):
     cpf: str
@@ -63,3 +63,4 @@ class MedAdmSchema(MedAdmBase):
 
     class Config:
         orm_mode = True
+
