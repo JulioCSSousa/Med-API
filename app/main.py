@@ -30,7 +30,7 @@ def get_db():
 
 
 @app.middleware("http")
-async def db_session_middleware(request, call_next):
+def db_session_middleware(request, call_next):
     response = await call_next(request)
     return response
 
@@ -49,7 +49,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return {"access_token": access_token, "token_type":"bearer"}
 
 @app.post("/register/", response_model=UserCreate)
-async def register(user: UserCreate, db: Session = Depends(get_db)):
+def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(status_code=400, detail="Email já existe")
