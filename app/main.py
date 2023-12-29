@@ -31,7 +31,7 @@ def get_db():
 
 @app.middleware("http")
 def db_session_middleware(request, call_next):
-    response = await call_next(request)
+    response = call_next(request)
     return response
 
 @app.get("/")
