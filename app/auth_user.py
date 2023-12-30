@@ -1,3 +1,4 @@
+import bcrypt
 from jose import JWTError, jwt
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, status
@@ -5,8 +6,12 @@ from passlib.context import CryptContext
 from app.crud import *
 from datetime import datetime, timedelta
 from werkzeug.security import check_password_hash
+import secrets
+from typing import Annotated
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 db = Session(engine)
 
+security = HTTPBasic
 
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='token')
@@ -15,6 +20,8 @@ SECRET_KEY = 'qwe4544e5d9v83x2c4v8s79f843s2165sv798cv46x5c4vs98d7f98465xv3zx54d8
 ALGORITHM = 'HS256'
 ACCESS_TOKEN_EXPIRES = 30
 
+
+
 def verify_pwd(hashed_password, plain_password):
     return check_password_hash(hashed_password, plain_password)
 
@@ -22,15 +29,14 @@ def get_pwd_hash(password):
     return pwd_context.hash(password)
 
 def authenticate_user(db: Session, username: str, password: str):
-    email = get_user_by_email(db, username)
-    if not email:
+    username = get_user_by_username(db, username)
+    if not username:
         return False
-    pwd = get_user_pwd(db, email[0])
+    pwd = get_user_pwd(db, username[0])
     pwdd = pwd[0]
     if not verify_pwd(pwdd, password):
         return False
-    print('emaill', email[0])
-    return email[0]
+    return username[0]
 
 def create_access_token(data: dict, expires_delta: timedelta or None = None):
     to_encode = data.copy()
@@ -51,7 +57,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
         username: str = payload.get("sub")
         if username is None:
             raise credential_exception
-        token_data = TokenData(email=username)
+        token_data = TokenData(username=username)
     except JWTError:
         raise credential_exception
     user = token_data

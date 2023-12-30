@@ -10,11 +10,14 @@ db = Session(engine)
 def get_user(db: Session, id: str):
     return db.query(User).filter(User.id == id).first()
 
-def get_user_by_email(db: Session, email: str):
-    return db.query(User.email).filter(User.email == email).first()
-def get_user_pwd(db: Session, email: str):
-    return db.query(User.password).filter(User.email == email).first()
-
+def get_user_by_username(db: Session, username: str):
+    user = db.query(User.username).filter(User.username == username).first()
+    print(user[0])
+    return user
+def get_user_pwd(db: Session, username: str):
+    pwd = db.query(User.password).filter(User.username == username).first()
+    print(pwd[0])
+    return pwd
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
     return db.query(User).offset(skip).limit(limit).all()

@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from datetime import date
-from pydantic import EmailStr, Field
 class Token(BaseModel):
     access_token: str
     token_type: str
@@ -8,15 +7,18 @@ class Token(BaseModel):
 
 class UserCreate(BaseModel):
     name: str
-    email: EmailStr | None = Field(default=None)
+    username: str
     password: str
 
 class UserSchema(UserCreate):
     id: str
-    email: EmailStr | None = Field(default=None)
+    str: str
 
 class TokenData(BaseModel):
-    email: EmailStr | None = Field(default=None)
+    username: str
+
+    class Config:
+        orm_mode = True
 
 class PatientBase(BaseModel):
     patient_name: str

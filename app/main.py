@@ -1,6 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
+from typing import Annotated
 from fastapi.middleware.cors import CORSMiddleware
 from werkzeug.security import generate_password_hash
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from fastapi.security import OAuth2PasswordRequestForm
 from app.auth_user import *
 from app.crud import *
@@ -18,9 +20,9 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-
 )
 
+security = HTTPBasic()
 def get_db():
     db = SessionLocal()
     try:
@@ -39,7 +41,7 @@ def home():
     return 'Bem vindo'
 
 @app.post("/token", response_model=Token)
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
@@ -50,21 +52,21 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 @app.post("/register/", response_model=UserCreate)
 def register(user: UserCreate, db: Session = Depends(get_db)):
-    db_user = get_user_by_email(db, email=user.email)
+    db_user = get_user_by_username(db, username=user.username)
     if db_user:
-        raise HTTPException(status_code=400, detail="Email já existe")
+        raise HTTPException(status_code=400, detail="username ou password já existe")
     hashed_password = generate_password_hash(user.password)
-    db_user = User(id=generate_uuid(), name=user.name, email=user.email, password=hashed_password)
+    db_user = User(id=generate_uuid(), name=user.name, username=user.username, password=hashed_password)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
-    return JSONResponse (content=f"{user.name, user.email} Cadastrado com sucesso")
+    return JSONResponse (content=f"{user.name, user.username} Cadastrado com sucesso")
 
 @app.get("/users/me", response_model=TokenData)
 def read_user_me(current_user: TokenData = Depends(get_current_user)):
     return current_user
 
-@app.get("/users/", response_model=list[UserSchema])
+@app.get("/users", response_model=list[UserSchema])
 def read_users(skip: int = 0, limit: int = 100, TokenData = Depends(get_current_user)):
     users = get_users(db, skip=skip, limit=limit)
     return users
@@ -76,8 +78,8 @@ def read_user(id: str, TokenData = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Usuário não encontrado")
     return db_user
 
-@app.get("/patients/", response_model=list[PatientSchema])
-def read_patients(skip: int = 0, limit: int = 100, TokenData = Depends(get_current_user)):
+@app.get("/patients", response_model=list[PatientSchema])
+async def read_patients(skip: int = 0, limit: int = 100, TokenData = Depends(get_current_user)):
     patients = get_patients(db, skip=skip, limit=limit)
     return patients
 
@@ -88,7 +90,7 @@ def read_patient_id(id: str, TokenData = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail=f"Parece que {patient.patient_name} está inativo")
     return patient
 
-@app.post("/patients/", response_model=PatientCreate)
+@app.post("/patients", response_model=PatientCreate)
 def new_patient(patient: PatientCreate, db: Session = Depends(get_db), TokenData = Depends(get_current_user)):
     db_patient = get_patient_by_cpf(db, cpf=patient.cpf)
     if db_patient:
@@ -99,7 +101,7 @@ def new_patient(patient: PatientCreate, db: Session = Depends(get_db), TokenData
     db.refresh(db_patient)
     return JSONResponse(f"{db_patient.patient_name}  Cadastradoc com sucesso")
 
-@app.get("/medicines/", response_model=list[MedicineSchema])
+@app.get("/medicines", response_model=list[MedicineSchema])
 def read_medicines(skip: int = 0, limit: int = 100, TokenData = Depends(get_current_user)):
     medicines = get_medicines(db, skip=skip, limit=limit)
     return medicines
@@ -111,7 +113,7 @@ def read_medicine_id(id: str, TokenData = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="Medicamento não encontrado")
     return medicine
 
-@app.post("/medicines/", response_model=MedicineCreate)
+@app.post("/medicines", response_model=MedicineCreate)
 def new_medicine(medicine: MedicineCreate, db: Session = Depends(get_db)):
     db_medicine = Medicine(med_name=medicine.med_name, quant_capsule_box=medicine.quant_capsule_box)
     db.add(db_medicine)
@@ -119,7 +121,7 @@ def new_medicine(medicine: MedicineCreate, db: Session = Depends(get_db)):
     db.refresh(db_medicine)
     return JSONResponse(f"{db_medicine.med_name}  Cadastrado com sucesso")
 
-@app.get("/med_adm/", response_model=list[MedAdmSchema])
+@app.get("/med_adm", response_model=list[MedAdmSchema])
 def get_med_adm(skip: int = 0, limit: int = 100, TokenData = Depends(get_current_user)):
     med_adm = get_admistration(db, skip=skip, limit=limit)
     return med_adm
@@ -132,7 +134,7 @@ def get_med_adm(id: str, TokenData = Depends(get_current_user)):
     patient = get_adminstration_by_id(db, id)
     return patient
 
-@app.post("/med_med_adm/", response_model=MedAdmCreate)
+@app.post("/med_med_adm", response_model=MedAdmCreate)
 def patient_med_register(med_adm: MedAdmCreate, db: Session = Depends(get_db), TokenData = Depends(get_current_user) ):
     med_post = post_med_adm(db, med_adm.id_patient, med_adm.id_med, med_adm.quant_capsule_day, med_adm.receipt_date,
                  med_adm.entry_quant, med_adm.loss, med_adm.expiration_date)
