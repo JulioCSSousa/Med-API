@@ -12,7 +12,6 @@ def get_user(db: Session, id: str):
 
 def get_user_by_username(db: Session, username: str):
     user = db.query(User.username).filter(User.username == username).first()
-    print(user[0])
     return user
 def get_user_pwd(db: Session, username: str):
     pwd = db.query(User.password).filter(User.username == username).first()
@@ -20,7 +19,9 @@ def get_user_pwd(db: Session, username: str):
     return pwd
 
 def get_users(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(User).offset(skip).limit(limit).all()
+    users = db.query(User).offset(skip).limit(limit).all()
+    return users
+
 
 def activated(db: Session, id:str):
     active = bool(db.query(Patient.is_active).filter(Patient.id==id).first())

@@ -50,8 +50,8 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     access_token = create_access_token(data={"sub": user}, expires_delta=access_token_expires)
     return {"access_token": access_token, "token_type":"bearer"}
 
-@app.post("/register/", response_model=UserCreate)
-def register(user: UserCreate, db: Session = Depends(get_db)):
+@app.post("/register", response_model=UserCreate)
+async def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = get_user_by_username(db, username=user.username)
     if db_user:
         raise HTTPException(status_code=400, detail="username ou password já existe")
@@ -67,11 +67,11 @@ def read_user_me(current_user: TokenData = Depends(get_current_user)):
     return current_user
 
 @app.get("/users", response_model=list[UserSchema])
-def read_users(skip: int = 0, limit: int = 100, TokenData = Depends(get_current_user)):
+async def read_users(skip: int = 0, limit: int = 100, TokenData = Depends(get_current_user)):
     users = get_users(db, skip=skip, limit=limit)
     return users
 
-@app.get("/users/{user_id}", response_model=UserSchema)
+@app.get("/users/{user_id}", response_model=UserCreate)
 def read_user(id: str, TokenData = Depends(get_current_user)):
     db_user = get_user(db, id=id)
     if db_user is None:

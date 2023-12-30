@@ -4,21 +4,23 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+class UserBase(BaseModel):
+    name: str
+    username: str
 
 class UserCreate(BaseModel):
     name: str
     username: str
     password: str
 
-class UserSchema(UserCreate):
+class UserSchema(UserBase):
     id: str
-    str: str
+    class Config:
+        orm_mode = True
 
 class TokenData(BaseModel):
     username: str
 
-    class Config:
-        orm_mode = True
 
 class PatientBase(BaseModel):
     patient_name: str

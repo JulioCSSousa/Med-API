@@ -1,9 +1,12 @@
 import pytest
 import httpx
 @pytest.mark.asyncio
-async def test_patients():
-    login_url = "https://med-api-production.up.railway.app/patients"
-    auth_token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuZWl2Y3NAZ21haWwuY29tIiwiZXhwIjoxNzAzOTM5MDUzfQ.tUXkBfKSEAW1hbSAXkD89ANE-xlyIQeYQ7aaiTxMDcM"
+async def test_users():
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+    logging.debug('Teste depuração')
+    login_url = "https://med-api-production.up.railway.app/users"
+    auth_token = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJuZWl2Y3NAZ21haWwuY29tIiwiZXhwIjoxNzAzOTQzMjUwfQ._n89i505dgRPcqZoi6t37xWVvKjXZx-1deSMnvkfUEc"
     headers = {'Authorization': auth_token}
 
     # Realizar uma requisição POST usando httpx
